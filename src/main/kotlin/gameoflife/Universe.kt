@@ -3,6 +3,11 @@ package gameoflife
 class Universe(var size: Int) {
     private var universe = Array(size) { Array(size) { Cell() } }
 
+    var generation = 0
+
+    val population
+        get() = universe.map { row -> row.count { cell -> cell.isAlive } }.sum()
+
     val isAlive
         get() = universe.map { row -> row.any { cell -> cell.isAlive } }.any { it }
 
@@ -14,6 +19,7 @@ class Universe(var size: Int) {
         val aliveNeighborsCounts =
             universe.map { it.map { cell -> cell.neighbors.count { neighbor -> neighbor.isAlive } } }
         universe.forEachIndexed { y, row -> row.forEachIndexed { x, cell -> cell.evolve(aliveNeighborsCounts[y][x]) } }
+        generation++
     }
 
     fun clear() = universe.map { it.map { cell -> cell.isAlive = false } }
@@ -30,11 +36,11 @@ class Universe(var size: Int) {
             for (x_delta in -1..1) {
                 if (x_delta == 0 && y_delta == 0)
                     continue
-                val Xn = x + x_delta
+                val xN = x + x_delta
                 val yN = y + y_delta
-                if (Xn < 0 || Xn >= size || yN < 0 || yN >= size)
+                if (xN < 0 || xN >= size || yN < 0 || yN >= size)
                     continue
-                neighbors.add(universe[yN][Xn])
+                neighbors.add(universe[yN][xN])
             }
         }
         return neighbors

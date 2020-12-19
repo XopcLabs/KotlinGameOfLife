@@ -57,6 +57,10 @@ class UniverseView : View("Game of Life") {
     val resetButton: Button by fxid()
     val closeButton: Button by fxid()
 
+    // Statistics
+    val generationIndicator: Text by fxid()
+    val populationIndicator: Text by fxid()
+
     // Game universe
     var universe = Universe(DEFAULT_SIZE)
     var universeSize = universe.size
@@ -73,9 +77,11 @@ class UniverseView : View("Game of Life") {
     private var yOffset = 0.0
 
     init {
+        // Styling game window
         primaryStage.resizableProperty().set(false)
         primaryStage.initStyle(StageStyle.TRANSPARENT)
 
+        // Moving game window
         titleBar.setOnMousePressed { event ->
             xOffset = event.sceneX
             yOffset = event.sceneY
@@ -88,7 +94,7 @@ class UniverseView : View("Game of Life") {
 
         gridSetup()
 
-
+        // Interactive elements logic
         sizeIndicator.setOnMouseClicked { event ->
             // Universe size can't be changed while running
             if (task != null)
@@ -129,25 +135,25 @@ class UniverseView : View("Game of Life") {
                 nextButton.disableProperty().set(false)
                 resetButton.disableProperty().set(false)
                 sizeIndicator.disableProperty().set(false)
-//                sizeIndicator.text = "$universeSize × $universeSize"
             } else {
                 playButton.text = "⏸"
 
                 task = timer.scheduleAtFixedRate(0L, DELAY_MS) {
                     universe.evolve()
                     updateGrid()
+                    updateStats()
                 }
 
                 nextButton.disableProperty().set(true)
                 resetButton.disableProperty().set(true)
                 sizeIndicator.disableProperty().set(true)
-//                sizeIndicator.text = "$universeSize × $universeSize"
             }
         }
 
         nextButton.setOnMouseClicked {
             universe.evolve()
             updateGrid()
+            updateStats()
         }
 
         resetButton.setOnMouseClicked {
@@ -226,6 +232,12 @@ class UniverseView : View("Game of Life") {
                     (grid[x, y] as Rectangle).fill = offColor
                 }
             }
+    }
+
+    // Update statistics text after evolution step
+    private fun updateStats() {
+        populationIndicator.text = "Population: ${universe.population} cells"
+        generationIndicator.text = "Generation: ${universe.generation}"
     }
 
     operator fun GridPane.get(x: Int, y: Int): Node? {
