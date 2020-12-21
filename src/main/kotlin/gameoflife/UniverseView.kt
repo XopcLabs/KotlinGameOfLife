@@ -73,8 +73,12 @@ class UniverseView : View("Game of Life") {
     private val offColor = Color.valueOf("#37474F")
     private val onColor = Color.valueOf("#608D8B")
 
+    // Window dragging
     private var xOffset = 0.0
     private var yOffset = 0.0
+
+    // Drag state
+    private var dragAlive = true
 
     init {
         // Styling game window
@@ -202,6 +206,18 @@ class UniverseView : View("Game of Life") {
                         fill = if (universe[x1, y1].isAlive) onColor
                         else offColor
                         effect = null
+                    }
+
+                    setOnDragDetected { event ->
+                        startFullDrag()
+                        dragAlive = event.button == MouseButton.PRIMARY
+                    }
+
+                    setOnMouseDragEntered {
+                        universe[x1, y1].isAlive = dragAlive
+
+                        fill = if (universe[x1, y1].isAlive) onColor
+                        else offColor
                     }
 
                     setOnMouseClicked {
