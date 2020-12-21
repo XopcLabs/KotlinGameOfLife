@@ -77,9 +77,6 @@ class UniverseView : View("Game of Life") {
     private var xOffset = 0.0
     private var yOffset = 0.0
 
-    // Drag state
-    private var dragAlive = true
-
     init {
         // Styling game window
         primaryStage.resizableProperty().set(false)
@@ -208,24 +205,24 @@ class UniverseView : View("Game of Life") {
                         effect = null
                     }
 
-                    setOnDragDetected { event ->
-                        startFullDrag()
-                        dragAlive = event.button == MouseButton.PRIMARY
-                    }
-
-                    setOnMouseDragEntered {
-                        universe[x1, y1].isAlive = dragAlive
-
-                        fill = if (universe[x1, y1].isAlive) onColor
-                        else offColor
-                    }
-
                     setOnMouseClicked {
                         universe[x1, y1].flipState()
 
                         fill = if (universe[x1, y1].isAlive) onColor
                         else offColor
                     }
+
+                    setOnDragDetected {
+                        startFullDrag()
+                    }
+
+                    setOnMouseDragEntered {
+                        universe[x1, y1].isAlive = it.button == MouseButton.PRIMARY
+
+                        fill = if (universe[x1, y1].isAlive) onColor
+                        else offColor
+                    }
+
                 }
                 grid.add(cellRect, x1, y1)
             }
