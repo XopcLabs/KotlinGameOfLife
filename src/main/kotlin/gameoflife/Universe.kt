@@ -15,6 +15,7 @@ class Universe(var size: Int) {
         universe.forEachIndexed { y, row -> row.forEachIndexed { x, cell -> cell.setupNeighbors(x, y) } }
     }
 
+    // Game tick
     fun evolve() {
         val aliveNeighborsCounts =
             universe.map { it.map { cell -> cell.neighbors.count { neighbor -> neighbor.isAlive } } }
@@ -22,14 +23,24 @@ class Universe(var size: Int) {
         generation++
     }
 
+    // Clearing universe
     fun clear() = universe.map { it.map { cell -> cell.isAlive = false } }
 
+    // Get operator for accessing individual cell
     operator fun get(x: Int, y: Int): Cell {
         if (x < 0 || y < 0 || x >= size || y >= size)
             throw ArrayIndexOutOfBoundsException("Indices $x, $y are out of bounds for a board of size $size")
         return universe[x][y]
     }
 
+    // Set operator for universe[i, j] = ...
+    operator fun set(x: Int, y: Int, cell: Cell) {
+        if (x < 0 || y < 0 || x >= size || y >= size)
+            throw ArrayIndexOutOfBoundsException("Indices $x, $y are out of bounds for a board of size $size")
+        universe[x][y] = cell
+    }
+
+    // Returns neighbors at index
     private fun getNeighborsAt(x: Int, y: Int): MutableList<Cell> {
         val neighbors = mutableListOf<Cell>()
         for (y_delta in -1..1) {
@@ -46,6 +57,7 @@ class Universe(var size: Int) {
         return neighbors
     }
 
+   // Extends Cell with method that adds neighbors
     private fun Cell.setupNeighbors(x: Int, y: Int) {
         neighbors.addAll(getNeighborsAt(x, y))
     }

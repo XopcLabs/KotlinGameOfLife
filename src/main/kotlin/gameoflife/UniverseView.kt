@@ -41,8 +41,7 @@ class UniverseView : View("Game of Life") {
         val GRID_PAD = 10.0
 
         @JvmStatic
-        val CELL_MARGIN = 5.0
-
+        val CELL_MARGIN = 3.0
     }
 
 
@@ -185,7 +184,7 @@ class UniverseView : View("Game of Life") {
             })
         }
 
-        universe = Universe(grid.columnCount)
+        retainData()
 
         val width = (GRID_DIMENSION - GRID_PAD) / grid.columnCount - CELL_MARGIN
         val height = (GRID_DIMENSION - GRID_PAD) / grid.rowCount - CELL_MARGIN
@@ -193,6 +192,7 @@ class UniverseView : View("Game of Life") {
         for (x1 in 0 until grid.columnCount)
             for (y1 in 0 until grid.rowCount) {
                 val cellRect = Rectangle(width, height, offColor).apply { arcHeight = 5.0; arcWidth = 5.0 }
+                cellRect.fill = if (universe[x1, y1].isAlive) onColor else offColor
                 cellRect.apply {
 
                     setOnMouseEntered {
@@ -200,16 +200,14 @@ class UniverseView : View("Game of Life") {
                     }
 
                     setOnMouseExited {
-                        fill = if (universe[x1, y1].isAlive) onColor
-                        else offColor
+                        fill = if (universe[x1, y1].isAlive) onColor else offColor
                         effect = null
                     }
 
                     setOnMouseClicked {
                         universe[x1, y1].flipState()
 
-                        fill = if (universe[x1, y1].isAlive) onColor
-                        else offColor
+                        fill = if (universe[x1, y1].isAlive) onColor else offColor
                     }
 
                     setOnDragDetected {
@@ -226,6 +224,16 @@ class UniverseView : View("Game of Life") {
                 }
                 grid.add(cellRect, x1, y1)
             }
+    }
+
+    // Set old universe state to the new universe after resizing
+    private fun retainData() {
+        val newUniverse = Universe(grid.columnCount)
+        val minSize = if (universe.size < newUniverse.size) universe.size else newUniverse.size
+        for (i in 0 until minSize)
+            for (j in 0 until minSize)
+                newUniverse[i, j] = universe[i, j]
+        universe = newUniverse
     }
 
     // Clear everything inside the grid (doesn't clear the universe)
