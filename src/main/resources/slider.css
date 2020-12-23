@@ -1,3 +1,7 @@
+.jfx-slider > .track {
+    -fx-background-color: #b0bec5;
+}
+
 .jfx-slider > .colored-track {
     -fx-background-color: #607D8B;
 }
