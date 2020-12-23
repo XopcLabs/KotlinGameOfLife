@@ -3,7 +3,6 @@ package gameoflife
 import javafx.beans.value.ObservableValue
 import javafx.geometry.HPos
 import javafx.geometry.VPos
-import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Slider
 import javafx.scene.effect.Glow
@@ -89,6 +88,9 @@ class UniverseView : View("Game of Life") {
     // Cell size on current zoom
     var cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
     var cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
+
+    // GridPane nodes array
+    val rectangles = Array(UNIVERSE_SIZE) { Array(UNIVERSE_SIZE) { Rectangle(0.0, 0.0) } }
 
     // Board panning parameters
     var panStartX = 0
@@ -262,10 +264,12 @@ class UniverseView : View("Game of Life") {
     }
 
     private fun gridSetup() {
+        // Update text
         updateStats()
         sizeIndicator.text = "$zoomSize × $zoomSize"
         viewIndicator.text = "x: $zoomLeftX y: $zoomLeftY"
 
+        // Update constraints
         for (i in 0 until zoomSize) {
             grid.columnConstraints.add(ColumnConstraints().apply {
                 halignment = HPos.CENTER
@@ -282,12 +286,13 @@ class UniverseView : View("Game of Life") {
         cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
         cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
 
-        for (x1 in zoomLeftX until zoomRightX)
-            for (y1 in zoomLeftY until zoomRightY) {
-                // Create rectangles
+        for (x in zoomLeftX until zoomRightX)
+            for (y in zoomLeftY until zoomRightY) {
+                // Create rectangle
                 val cellRect = Rectangle(cellSize, cellSize, offColor).apply { arcHeight = 5.0; arcWidth = 5.0 }
+                rectangles[x][y] = cellRect
                 // Fill rectangles with color after retaining data
-                cellRect.fill = if (universe[x1, y1].isAlive) onColor else offColor
+                cellRect.fill = if (universe[x, y].isAlive) onColor else offColor
                 // Add listeners
                 cellRect.apply {
                     setOnMouseEntered {
@@ -295,14 +300,14 @@ class UniverseView : View("Game of Life") {
                     }
 
                     setOnMouseExited {
-                        fill = if (universe[x1, y1].isAlive) onColor else offColor
+                        fill = if (universe[x, y].isAlive) onColor else offColor
                         effect = null
                     }
 
                     setOnMouseClicked {
-                        universe[x1, y1].flipState()
+                        universe[x, y].flipState()
 
-                        fill = if (universe[x1, y1].isAlive) onColor else offColor
+                        fill = if (universe[x, y].isAlive) onColor else offColor
                     }
 
                     setOnDragDetected {
@@ -311,15 +316,15 @@ class UniverseView : View("Game of Life") {
 
                     setOnMouseDragEntered {
                         if (!it.isMiddleButtonDown) {
-                            universe[x1, y1].isAlive = it.button == MouseButton.PRIMARY
+                            universe[x, y].isAlive = it.button == MouseButton.PRIMARY
 
-                            fill = if (universe[x1, y1].isAlive) onColor
+                            fill = if (universe[x, y].isAlive) onColor
                             else offColor
                         }
                     }
 
                 }
-                grid.add(cellRect, x1 - zoomLeftX, y1 - zoomLeftY)
+                grid.add(cellRect, x - zoomLeftX, y - zoomLeftY)
             }
     }
 
@@ -354,13 +359,15 @@ class UniverseView : View("Game of Life") {
             for (y in zoomLeftY until zoomRightY) {
                 if (universe[x, y].isAlive) {
                     try {
-                        (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = onColor
+                        rectangles[x][y].fill = onColor
                     } catch (e: Exception) {
+                        println("At $x, $y")
                     }
                 } else {
                     try {
-                        (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = offColor
+                        rectangles[x][y].fill = offColor
                     } catch (e: Exception) {
+                        println("At $x, $y")
                     }
                 }
             }
@@ -372,11 +379,4 @@ class UniverseView : View("Game of Life") {
         populationIndicator.text = "Population: ${universe.population} cells"
     }
 
-    operator fun GridPane.get(x: Int, y: Int): Node? {
-        for (node in children) {
-            if (GridPane.getColumnIndex(node) == x && GridPane.getRowIndex(node) == y)
-                return node
-        }
-        return null
-    }
 }
