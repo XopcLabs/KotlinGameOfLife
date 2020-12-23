@@ -16,19 +16,7 @@
         <RowConstraints/>
     </rowConstraints>
     <AnchorPane fx:id="titleBar" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #455A64;">
-        <HBox spacing="10.0" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="9.0">
-            <Text fx:id="sizeIndicator" fill="#b0bec5">
-                <font>
-                    <Font name="System Bold" size="12.0"/>
-                </font>
-            </Text>
-            <Text fx:id="viewIndicator" fill="#b0bec5">
-                <font>
-                    <Font name="System Bold" size="12.0"/>
-                </font>
-            </Text>
-        </HBox>
-        <HBox spacing="2.5" AnchorPane.rightAnchor="0.0">
+        <HBox spacing="2.5" AnchorPane.LeftAnchor="0.0">
             <JFXButton fx:id="playButton" defaultButton="true" minHeight="35.0" prefWidth="35.0"
                        style="-fx-background-color: #78909C;" text="▶" textAlignment="CENTER">
                 <font>
@@ -47,13 +35,14 @@
                     <Font name="System Bold" size="12.0"/>
                 </font>
             </JFXButton>
-            <JFXButton fx:id="closeButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #E53935;"
-                       text="✖" textAlignment="CENTER">
-                <font>
-                    <Font size="14.0"/>
-                </font>
-            </JFXButton>
         </HBox>
+        <JFXButton fx:id="closeButton" AnchorPane.rightAnchor="0.0" minHeight="35.0" prefWidth="35.0"
+                   style="-fx-background-color: #E53935;"
+                   text="✖" textAlignment="CENTER">
+            <font>
+                <Font size="14.0"/>
+            </font>
+        </JFXButton>
     </AnchorPane>
     <AnchorPane prefHeight="600.0" prefWidth="600.0" style="-fx-background-color: #263238;" GridPane.columnIndex="0"
                 GridPane.rowIndex="1">
@@ -69,6 +58,18 @@
                 </font>
             </Text>
             <Text fx:id="populationIndicator" fill="#b0bec5">
+                <font>
+                    <Font name="System Bold" size="12.0"/>
+                </font>
+            </Text>
+        </HBox>
+        <HBox spacing="10.0" AnchorPane.bottomAnchor="9.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="9.0">
+            <Text fx:id="viewIndicator" fill="#b0bec5">
+                <font>
+                    <Font name="System Bold" size="12.0"/>
+                </font>
+            </Text>
+            <Text fx:id="sizeIndicator" fill="#b0bec5">
                 <font>
                     <Font name="System Bold" size="12.0"/>
                 </font>
