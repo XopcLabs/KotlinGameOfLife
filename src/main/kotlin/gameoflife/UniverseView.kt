@@ -246,6 +246,7 @@ class UniverseView : View("Game of Life") {
     }
 
     private fun gridSetup() {
+        updateStats()
         sizeIndicator.text = "$zoomSize ✕ $zoomSize"
         viewIndicator.text = "x: $zoomLeftX y: $zoomLeftY"
 
