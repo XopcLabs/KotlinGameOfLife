@@ -32,7 +32,7 @@ class UniverseView : View("Game of Life") {
         val MAX_SIZE = 65
 
         @JvmStatic
-        val UNIVERSE_SIZE = 200
+        val UNIVERSE_SIZE = 1000
 
         @JvmStatic
         val DELAY_MS = 250L
@@ -49,7 +49,6 @@ class UniverseView : View("Game of Life") {
         @JvmStatic
         val CELL_MAX_MARGIN = 1.0
     }
-
 
     override val root: GridPane by fxml(hasControllerAttribute = true)
     val grid: GridPane by fxid()
@@ -153,6 +152,7 @@ class UniverseView : View("Game of Life") {
         resetButton.setOnMouseClicked {
             universe.clear()
             gridUpdate()
+            updateStats()
         }
 
         closeButton.setOnMouseClicked { event ->

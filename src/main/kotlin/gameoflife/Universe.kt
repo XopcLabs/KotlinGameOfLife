@@ -24,7 +24,10 @@ class Universe(var size: Int) {
     }
 
     // Clearing universe
-    fun clear() = universe.map { it.map { cell -> cell.isAlive = false } }
+    fun clear() {
+        universe.map { it.map { cell -> cell.isAlive = false } }
+        generation = 0
+    }
 
     // Get operator for accessing individual cell
     operator fun get(x: Int, y: Int): Cell {
