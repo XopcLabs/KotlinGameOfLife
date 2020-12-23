@@ -17,7 +17,6 @@ import javafx.stage.StageStyle
 import tornadofx.*
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
-import kotlin.concurrent.timer
 import kotlin.system.exitProcess
 
 class UniverseView : View("Game of Life") {
@@ -30,7 +29,7 @@ class UniverseView : View("Game of Life") {
         val MIN_SIZE = 6
 
         @JvmStatic
-        val MAX_SIZE = 60
+        val MAX_SIZE = 65
 
         @JvmStatic
         val UNIVERSE_SIZE = 200
@@ -45,7 +44,10 @@ class UniverseView : View("Game of Life") {
         val GRID_PAD = 10.0
 
         @JvmStatic
-        val CELL_MARGIN = 3.0
+        val CELL_MIN_MARGIN = 3.0
+
+        @JvmStatic
+        val CELL_MAX_MARGIN = 1.0
     }
 
 
@@ -81,6 +83,10 @@ class UniverseView : View("Game of Life") {
     // Bottom right corner coord
     var zoomRightX = UNIVERSE_SIZE / 2 + zoomSize / 2
     var zoomRightY = UNIVERSE_SIZE / 2 + zoomSize / 2
+
+    // Cell size on current zoom
+    var cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
+    var cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
 
     // Board panning parameters
     var panStartX = 0
@@ -159,8 +165,6 @@ class UniverseView : View("Game of Life") {
         // Starting panning
         grid.setOnDragDetected { event ->
             if (event.button == MouseButton.MIDDLE) {
-                // Cell size on the grid at current moment
-                val cellSize = (GRID_DIMENSION - GRID_PAD) / grid.columnCount - CELL_MARGIN
                 // Coordinates of cell under mouse pointer relative to the view
                 panStartX = (event.x / cellSize).toInt()
                 panStartY = (event.y / cellSize).toInt()
@@ -170,9 +174,6 @@ class UniverseView : View("Game of Life") {
         // Panning view over the board
         grid.setOnMouseDragOver { event ->
             if (event.button == MouseButton.MIDDLE) {
-                // Cell size on the grid at current moment
-                val cellSize = (GRID_DIMENSION - GRID_PAD) / grid.columnCount - CELL_MARGIN
-
                 // Relative coordinates of pan end
                 panEndX = (event.x / cellSize).toInt()
                 panEndY = (event.y / cellSize).toInt()
@@ -260,13 +261,14 @@ class UniverseView : View("Game of Life") {
             })
         }
 
-        val width = (GRID_DIMENSION - GRID_PAD) / grid.columnCount - CELL_MARGIN
-        val height = (GRID_DIMENSION - GRID_PAD) / grid.rowCount - CELL_MARGIN
+        // Updating cell size
+        cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
+        cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
 
         for (x1 in zoomLeftX until zoomRightX)
             for (y1 in zoomLeftY until zoomRightY) {
                 // Create rectangles
-                val cellRect = Rectangle(width, height, offColor).apply { arcHeight = 5.0; arcWidth = 5.0 }
+                val cellRect = Rectangle(cellSize, cellSize, offColor).apply { arcHeight = 5.0; arcWidth = 5.0 }
                 // Fill rectangles with color after retaining data
                 cellRect.fill = if (universe[x1, y1].isAlive) onColor else offColor
                 // Add listeners
@@ -349,8 +351,8 @@ class UniverseView : View("Game of Life") {
 
     // Update statistics text after evolution step
     private fun updateStats() {
-        populationIndicator.text = "Population: ${universe.population} cells"
         generationIndicator.text = "Generation: ${universe.generation}"
+        populationIndicator.text = "Population: ${universe.population} cells"
     }
 
     operator fun GridPane.get(x: Int, y: Int): Node? {
