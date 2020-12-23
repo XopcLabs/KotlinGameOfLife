@@ -43,7 +43,7 @@
                 </Text>
                 <JFXSlider fx:id="speedSlider" blockIncrement="1.0" indicatorPosition="RIGHT" majorTickUnit="1" max="10"
                            min="1" minorTickCount="0" prefHeight="9.0" prefWidth="140.0" showTickMarks="true"
-                           snapToTicks="true" stylesheets="/slider.css" value="4.0">
+                           snapToTicks="true" stylesheets="/slider.css" value="5.0">
                 </JFXSlider>
             </VBox>
 

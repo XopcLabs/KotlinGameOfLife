@@ -21,7 +21,6 @@ import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
 class UniverseView : View("Game of Life") {
@@ -38,9 +37,6 @@ class UniverseView : View("Game of Life") {
 
         @JvmStatic
         val UNIVERSE_SIZE = 1000
-
-        @JvmStatic
-        var DELAY_MS = 250L
 
         @JvmStatic
         val GRID_DIMENSION = 600.0
@@ -76,6 +72,7 @@ class UniverseView : View("Game of Life") {
 
     // Game universe
     var universe = Universe(UNIVERSE_SIZE)
+    var delay = 200L
 
     // View parameters
     var zoomSize = DEFAULT_SIZE
@@ -143,7 +140,7 @@ class UniverseView : View("Game of Life") {
             } else {
                 playButton.text = "⏸"
 
-                task = timer.scheduleAtFixedRate(0L, DELAY_MS) { gameTick() }
+                task = timer.scheduleAtFixedRate(0L, delay) { gameTick() }
 
                 nextButton.disableProperty().set(true)
                 resetButton.disableProperty().set(true)
@@ -173,10 +170,10 @@ class UniverseView : View("Game of Life") {
             .addListener(ChangeListener<Number> { _: ObservableValue<out Number>?, _: Number, newNumber: Number ->
                 newNumber as Double
                 if (ceil(newNumber) == floor(newNumber)) {
-                    DELAY_MS = (1000 / newNumber).toLong()
+                    delay = (1000 / newNumber).toLong()
                     if (task != null) {
                         task?.cancel()
-                        task = timer.scheduleAtFixedRate(0, DELAY_MS) { gameTick() }
+                        task = timer.scheduleAtFixedRate(0, delay) { gameTick() }
                     }
                 }
             })
