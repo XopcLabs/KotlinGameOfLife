@@ -4,60 +4,77 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane fx:id="root" alignment="center" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gameoflife.UniverseView">
+<GridPane fx:id="root" alignment="center" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+          prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="gameoflife.UniverseView">
     <columnConstraints>
-        <ColumnConstraints />
+        <ColumnConstraints/>
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints minHeight="-Infinity" prefHeight="35.0" />
-        <RowConstraints minHeight="300.0" prefHeight="600.0" />
-      <RowConstraints />
+        <RowConstraints minHeight="-Infinity" prefHeight="35.0"/>
+        <RowConstraints minHeight="300.0" prefHeight="600.0"/>
+        <RowConstraints/>
     </rowConstraints>
     <AnchorPane fx:id="titleBar" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #455A64;">
-        <Text fx:id="sizeIndicator" fill="#b0bec5" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="9.0">
-            <font>
-                <Font name="System Bold" size="12.0" />
-            </font>
-        </Text>
+        <HBox spacing="10.0" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="9.0">
+            <Text fx:id="sizeIndicator" fill="#b0bec5">
+                <font>
+                    <Font name="System Bold" size="12.0"/>
+                </font>
+            </Text>
+            <Text fx:id="viewIndicator" fill="#b0bec5">
+                <font>
+                    <Font name="System Bold" size="12.0"/>
+                </font>
+            </Text>
+        </HBox>
         <HBox spacing="2.5" AnchorPane.rightAnchor="0.0">
-            <JFXButton fx:id="playButton" defaultButton="true" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #78909C;" text="▶" textAlignment="CENTER">
+            <JFXButton fx:id="playButton" defaultButton="true" minHeight="35.0" prefWidth="35.0"
+                       style="-fx-background-color: #78909C;" text="▶" textAlignment="CENTER">
                 <font>
-                    <Font name="System Bold" size="14.0" />
+                    <Font name="System Bold" size="14.0"/>
                 </font>
             </JFXButton>
-            <JFXButton fx:id="nextButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #607D8B;" text="⏭" textAlignment="CENTER">
+            <JFXButton fx:id="nextButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #607D8B;"
+                       text="⏭" textAlignment="CENTER">
                 <font>
-                    <Font name="System Bold" size="14.0" />
+                    <Font name="System Bold" size="14.0"/>
                 </font>
             </JFXButton>
-            <JFXButton fx:id="resetButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #607D8B;" text="🔄" textAlignment="CENTER">
+            <JFXButton fx:id="resetButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #607D8B;"
+                       text="🔄" textAlignment="CENTER">
                 <font>
-                    <Font name="System Bold" size="12.0" />
+                    <Font name="System Bold" size="12.0"/>
                 </font>
             </JFXButton>
-            <JFXButton fx:id="closeButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #E53935;" text="✖" textAlignment="CENTER">
+            <JFXButton fx:id="closeButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #E53935;"
+                       text="✖" textAlignment="CENTER">
                 <font>
-                    <Font size="14.0" />
+                    <Font size="14.0"/>
                 </font>
             </JFXButton>
         </HBox>
     </AnchorPane>
-    <AnchorPane prefHeight="600.0" prefWidth="600.0" style="-fx-background-color: #263238;" GridPane.columnIndex="0" GridPane.rowIndex="1">
-        <GridPane fx:id="grid" prefHeight="300.0" prefWidth="300.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+    <AnchorPane prefHeight="600.0" prefWidth="600.0" style="-fx-background-color: #263238;" GridPane.columnIndex="0"
+                GridPane.rowIndex="1">
+        <GridPane fx:id="grid" prefHeight="300.0" prefWidth="300.0" AnchorPane.bottomAnchor="5.0"
+                  AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
         </GridPane>
     </AnchorPane>
     <AnchorPane prefWidth="600.0" style="-fx-background-color: #455A64;" GridPane.columnIndex="0" GridPane.rowIndex="2">
         <HBox spacing="10" AnchorPane.bottomAnchor="9.0" AnchorPane.leftAnchor="8.0" AnchorPane.topAnchor="9.0">
             <Text fx:id="generationIndicator" fill="#b0bec5">
                 <font>
-                    <Font name="System Bold" size="12.0" />
+                    <Font name="System Bold" size="12.0"/>
                 </font>
             </Text>
             <Text fx:id="populationIndicator" fill="#b0bec5">
                 <font>
-                    <Font name="System Bold" size="12.0" />
+                    <Font name="System Bold" size="12.0"/>
                 </font>
             </Text>
+        </HBox>
+        <HBox spacing="10" AnchorPane.bottomAnchor="9.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="9.0">
         </HBox>
     </AnchorPane>
 </GridPane>

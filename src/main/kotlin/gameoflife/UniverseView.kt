@@ -63,20 +63,23 @@ class UniverseView : View("Game of Life") {
     val generationIndicator: Text by fxid()
     val populationIndicator: Text by fxid()
 
+    // View indicator
+    val viewIndicator: Text by fxid()
+
     // Game universe
     var universe = Universe(UNIVERSE_SIZE)
 
-    // Zoomed parameters
+    // View parameters
     var zoomSize = DEFAULT_SIZE
     var zoomOnLeft = true
 
     // Upper left corner coord
-    var zoomLeftX = MAX_SIZE / 2 - zoomSize / 2
-    var zoomLeftY = MAX_SIZE / 2 - zoomSize / 2
+    var zoomLeftX = UNIVERSE_SIZE / 2 - zoomSize / 2
+    var zoomLeftY = UNIVERSE_SIZE / 2 - zoomSize / 2
 
     // Bottom right corner coord
-    var zoomRightX = MAX_SIZE / 2 + zoomSize / 2
-    var zoomRightY = MAX_SIZE / 2 + zoomSize / 2
+    var zoomRightX = UNIVERSE_SIZE / 2 + zoomSize / 2
+    var zoomRightY = UNIVERSE_SIZE / 2 + zoomSize / 2
 
     // Board panning parameters
     var panStartX = 0
@@ -241,7 +244,8 @@ class UniverseView : View("Game of Life") {
     }
 
     private fun gridSetup() {
-        sizeIndicator.text = "$zoomSize * $zoomSize"
+        sizeIndicator.text = "$zoomSize ✕ $zoomSize"
+        viewIndicator.text = "x: $zoomLeftX y: $zoomLeftY"
 
         for (i in 0 until zoomSize) {
             grid.columnConstraints.add(ColumnConstraints().apply {
@@ -304,16 +308,16 @@ class UniverseView : View("Game of Life") {
         if (zoomLeftX < 0) {
             zoomRightX -= zoomLeftX
             zoomLeftX = 0
-        } else if (zoomRightX > MAX_SIZE) {
-            zoomLeftX -= zoomRightX - MAX_SIZE
-            zoomRightX = MAX_SIZE
+        } else if (zoomRightX > UNIVERSE_SIZE) {
+            zoomLeftX -= zoomRightX - UNIVERSE_SIZE
+            zoomRightX = UNIVERSE_SIZE
         }
         if (zoomLeftY < 0) {
             zoomRightY -= zoomLeftY
             zoomLeftY = 0
-        } else if (zoomRightY > MAX_SIZE) {
-            zoomLeftY -= zoomRightY - MAX_SIZE
-            zoomRightY = MAX_SIZE
+        } else if (zoomRightY > UNIVERSE_SIZE) {
+            zoomLeftY -= zoomRightY - UNIVERSE_SIZE
+            zoomRightY = UNIVERSE_SIZE
         }
     }
 
