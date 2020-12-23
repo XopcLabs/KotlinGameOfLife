@@ -74,7 +74,5 @@
                 </font>
             </Text>
         </HBox>
-        <HBox spacing="10" AnchorPane.bottomAnchor="9.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="9.0">
-        </HBox>
     </AnchorPane>
 </GridPane>

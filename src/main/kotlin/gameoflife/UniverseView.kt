@@ -17,6 +17,7 @@ import javafx.stage.StageStyle
 import tornadofx.*
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
+import kotlin.concurrent.timer
 import kotlin.system.exitProcess
 
 class UniverseView : View("Game of Life") {
@@ -131,11 +132,7 @@ class UniverseView : View("Game of Life") {
             } else {
                 playButton.text = "⏸"
 
-                task = timer.scheduleAtFixedRate(0L, DELAY_MS) {
-                    universe.evolve()
-                    gridUpdate()
-                    updateStats()
-                }
+                task = timer.scheduleAtFixedRate(0L, DELAY_MS) { gameTick() }
 
                 nextButton.disableProperty().set(true)
                 resetButton.disableProperty().set(true)
@@ -144,9 +141,7 @@ class UniverseView : View("Game of Life") {
         }
 
         nextButton.setOnMouseClicked {
-            universe.evolve()
-            gridUpdate()
-            updateStats()
+            gameTick()
         }
 
         resetButton.setOnMouseClicked {
@@ -243,6 +238,12 @@ class UniverseView : View("Game of Life") {
         }
     }
 
+    private fun gameTick() {
+        universe.evolve()
+        gridUpdate()
+        updateStats()
+    }
+
     private fun gridSetup() {
         sizeIndicator.text = "$zoomSize ✕ $zoomSize"
         viewIndicator.text = "x: $zoomLeftX y: $zoomLeftY"
@@ -333,9 +334,15 @@ class UniverseView : View("Game of Life") {
         for (x in zoomLeftX until zoomRightX)
             for (y in zoomLeftY until zoomRightY) {
                 if (universe[x, y].isAlive) {
-                    (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = onColor
+                    try {
+                        (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = onColor
+                    } catch (e: Exception) {
+                    }
                 } else {
-                    (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = offColor
+                    try {
+                        (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = offColor
+                    } catch (e: Exception) {
+                    }
                 }
             }
     }
