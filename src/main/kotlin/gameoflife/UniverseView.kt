@@ -29,7 +29,10 @@ class UniverseView : View("Game of Life") {
         val MIN_SIZE = 6
 
         @JvmStatic
-        val MAX_SIZE = 45
+        val MAX_SIZE = 60
+
+        @JvmStatic
+        val UNIVERSE_SIZE = 200
 
         @JvmStatic
         val DELAY_MS = 250L
@@ -61,8 +64,25 @@ class UniverseView : View("Game of Life") {
     val populationIndicator: Text by fxid()
 
     // Game universe
-    var universe = Universe(DEFAULT_SIZE)
-    var universeSize = universe.size
+    var universe = Universe(UNIVERSE_SIZE)
+
+    // Zoomed parameters
+    var zoomSize = DEFAULT_SIZE
+    var zoomOnLeft = true
+
+    // Upper left corner coord
+    var zoomLeftX = MAX_SIZE / 2 - zoomSize / 2
+    var zoomLeftY = MAX_SIZE / 2 - zoomSize / 2
+
+    // Bottom right corner coord
+    var zoomRightX = MAX_SIZE / 2 + zoomSize / 2
+    var zoomRightY = MAX_SIZE / 2 + zoomSize / 2
+
+    // Board panning parameters
+    var panStartX = 0
+    var panStartY = 0
+    var panEndX = 0
+    var panEndY = 0
 
     // Timer for delays
     private val timer = Timer()
@@ -81,12 +101,13 @@ class UniverseView : View("Game of Life") {
         primaryStage.resizableProperty().set(false)
         primaryStage.initStyle(StageStyle.TRANSPARENT)
 
-        // Moving game window
+        // Start tracking moving game window
         titleBar.setOnMousePressed { event ->
             xOffset = event.sceneX
             yOffset = event.sceneY
         }
 
+        // Moving game window
         titleBar.setOnMouseDragged { event ->
             primaryStage.x = event.screenX - xOffset
             primaryStage.y = event.screenY - yOffset
@@ -95,37 +116,6 @@ class UniverseView : View("Game of Life") {
         gridSetup()
 
         // Interactive elements logic
-        sizeIndicator.setOnMouseClicked { event ->
-            // Universe size can't be changed while running
-            if (task != null)
-                return@setOnMouseClicked
-
-            var changed = false
-            when (event.button) {
-                MouseButton.PRIMARY -> {
-                    val newSize = universeSize + 1
-                    if (newSize <= MAX_SIZE) {
-                        universeSize = newSize
-                        changed = true
-                    }
-                }
-                MouseButton.SECONDARY -> {
-                    val newSize = universeSize - 1
-                    if (newSize >= MIN_SIZE) {
-                        universeSize = newSize
-                        changed = true
-                    }
-                }
-                else -> {
-                }
-            }
-            if (changed) {
-                sizeIndicator.text = "$universeSize × $universeSize ↕"
-                gridReset()
-                gridSetup()
-            }
-        }
-
         playButton.setOnMouseClicked {
             if (task != null) {
                 playButton.text = "▶"
@@ -140,7 +130,7 @@ class UniverseView : View("Game of Life") {
 
                 task = timer.scheduleAtFixedRate(0L, DELAY_MS) {
                     universe.evolve()
-                    updateGrid()
+                    gridUpdate()
                     updateStats()
                 }
 
@@ -152,13 +142,13 @@ class UniverseView : View("Game of Life") {
 
         nextButton.setOnMouseClicked {
             universe.evolve()
-            updateGrid()
+            gridUpdate()
             updateStats()
         }
 
         resetButton.setOnMouseClicked {
             universe.clear()
-            updateGrid()
+            gridUpdate()
         }
 
         closeButton.setOnMouseClicked { event ->
@@ -167,12 +157,93 @@ class UniverseView : View("Game of Life") {
                 exitProcess(0)
             }
         }
+
+        // Starting panning
+        grid.setOnDragDetected { event ->
+            if (event.button == MouseButton.MIDDLE) {
+                // Cell size on the grid at current moment
+                val cellSize = (GRID_DIMENSION - GRID_PAD) / grid.columnCount - CELL_MARGIN
+                // Coordinates of cell under mouse pointer relative to the view
+                panStartX = (event.x / cellSize).toInt()
+                panStartY = (event.y / cellSize).toInt()
+            }
+        }
+
+        // Panning view over the board
+        grid.setOnMouseDragOver { event ->
+            if (event.button == MouseButton.MIDDLE) {
+                // Cell size on the grid at current moment
+                val cellSize = (GRID_DIMENSION - GRID_PAD) / grid.columnCount - CELL_MARGIN
+
+                // Relative coordinates of pan end
+                panEndX = (event.x / cellSize).toInt()
+                panEndY = (event.y / cellSize).toInt()
+
+                // Difference
+                val diffX = panEndX - panStartX
+                val diffY = panEndY - panStartY
+
+                // Setting panStart = panEnd for smooth panning
+                panStartX = panEndX
+                panStartY = panEndY
+
+                // Moving game view
+                zoomLeftX -= diffX
+                zoomLeftY -= diffY
+                zoomRightX -= diffX
+                zoomRightY -= diffY
+
+                // Adjusting corners
+                adjustCorners()
+
+                // Updating grid
+                gridReset()
+                gridSetup()
+            }
+
+        }
+
+        // Changing zoom size
+        grid.setOnScroll { event ->
+            if (event.deltaY < 0 && zoomSize < MAX_SIZE) {
+                zoomSize++
+
+                //Update game view
+                if (zoomOnLeft) {
+                    zoomLeftX--
+                    zoomLeftY--
+                } else {
+                    zoomRightX++
+                    zoomRightY++
+                }
+            } else if (event.deltaY > 0 && zoomSize > MIN_SIZE) {
+                zoomSize--
+
+                //Update game view
+                if (zoomOnLeft) {
+                    zoomLeftX++
+                    zoomLeftY++
+                } else {
+                    zoomRightX--
+                    zoomRightY--
+                }
+            }
+            // Switching side for next zoom
+            zoomOnLeft = !zoomOnLeft
+
+            // Adjusting to corners
+            adjustCorners()
+
+            // Updating grid
+            gridReset()
+            gridSetup()
+        }
     }
 
     private fun gridSetup() {
-        sizeIndicator.text = "$universeSize * $universeSize ↕"
+        sizeIndicator.text = "$zoomSize * $zoomSize"
 
-        for (i in 0 until universeSize) {
+        for (i in 0 until zoomSize) {
             grid.columnConstraints.add(ColumnConstraints().apply {
                 halignment = HPos.CENTER
                 prefWidth = 100.0
@@ -184,17 +255,17 @@ class UniverseView : View("Game of Life") {
             })
         }
 
-        retainData()
-
         val width = (GRID_DIMENSION - GRID_PAD) / grid.columnCount - CELL_MARGIN
         val height = (GRID_DIMENSION - GRID_PAD) / grid.rowCount - CELL_MARGIN
 
-        for (x1 in 0 until grid.columnCount)
-            for (y1 in 0 until grid.rowCount) {
+        for (x1 in zoomLeftX until zoomRightX)
+            for (y1 in zoomLeftY until zoomRightY) {
+                // Create rectangles
                 val cellRect = Rectangle(width, height, offColor).apply { arcHeight = 5.0; arcWidth = 5.0 }
+                // Fill rectangles with color after retaining data
                 cellRect.fill = if (universe[x1, y1].isAlive) onColor else offColor
+                // Add listeners
                 cellRect.apply {
-
                     setOnMouseEntered {
                         effect = Glow(1.0)
                     }
@@ -215,25 +286,35 @@ class UniverseView : View("Game of Life") {
                     }
 
                     setOnMouseDragEntered {
-                        universe[x1, y1].isAlive = it.button == MouseButton.PRIMARY
+                        if (!it.isMiddleButtonDown) {
+                            universe[x1, y1].isAlive = it.button == MouseButton.PRIMARY
 
-                        fill = if (universe[x1, y1].isAlive) onColor
-                        else offColor
+                            fill = if (universe[x1, y1].isAlive) onColor
+                            else offColor
+                        }
                     }
 
                 }
-                grid.add(cellRect, x1, y1)
+                grid.add(cellRect, x1 - zoomLeftX, y1 - zoomLeftY)
             }
     }
 
-    // Set old universe state to the new universe after resizing
-    private fun retainData() {
-        val newUniverse = Universe(grid.columnCount)
-        val minSize = if (universe.size < newUniverse.size) universe.size else newUniverse.size
-        for (i in 0 until minSize)
-            for (j in 0 until minSize)
-                newUniverse[i, j] = universe[i, j]
-        universe = newUniverse
+    // Adjusts corners to the grid constraints after zoom or pan
+    private fun adjustCorners() {
+        if (zoomLeftX < 0) {
+            zoomRightX -= zoomLeftX
+            zoomLeftX = 0
+        } else if (zoomRightX > MAX_SIZE) {
+            zoomLeftX -= zoomRightX - MAX_SIZE
+            zoomRightX = MAX_SIZE
+        }
+        if (zoomLeftY < 0) {
+            zoomRightY -= zoomLeftY
+            zoomLeftY = 0
+        } else if (zoomRightY > MAX_SIZE) {
+            zoomLeftY -= zoomRightY - MAX_SIZE
+            zoomRightY = MAX_SIZE
+        }
     }
 
     // Clear everything inside the grid (doesn't clear the universe)
@@ -244,13 +325,13 @@ class UniverseView : View("Game of Life") {
     }
 
     // Update grid after evolution step
-    private fun updateGrid() {
-        for (x in 0 until grid.columnCount)
-            for (y in 0 until grid.rowCount) {
+    private fun gridUpdate() {
+        for (x in zoomLeftX until zoomRightX)
+            for (y in zoomLeftY until zoomRightY) {
                 if (universe[x, y].isAlive) {
-                    (grid[x, y] as Rectangle).fill = onColor
+                    (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = onColor
                 } else {
-                    (grid[x, y] as Rectangle).fill = offColor
+                    (grid[x - zoomLeftX, y - zoomLeftY] as Rectangle).fill = offColor
                 }
             }
     }
