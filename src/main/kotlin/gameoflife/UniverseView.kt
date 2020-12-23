@@ -1,9 +1,11 @@
 package gameoflife
 
+import javafx.beans.value.ObservableValue
 import javafx.geometry.HPos
 import javafx.geometry.VPos
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.Slider
 import javafx.scene.effect.Glow
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.AnchorPane
@@ -17,6 +19,9 @@ import javafx.stage.StageStyle
 import tornadofx.*
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
 class UniverseView : View("Game of Life") {
@@ -35,7 +40,7 @@ class UniverseView : View("Game of Life") {
         val UNIVERSE_SIZE = 1000
 
         @JvmStatic
-        val DELAY_MS = 250L
+        var DELAY_MS = 250L
 
         @JvmStatic
         val GRID_DIMENSION = 600.0
@@ -60,6 +65,7 @@ class UniverseView : View("Game of Life") {
     val nextButton: Button by fxid()
     val resetButton: Button by fxid()
     val closeButton: Button by fxid()
+    val speedSlider: Slider by fxid()
 
     // Statistics
     val generationIndicator: Text by fxid()
@@ -162,6 +168,19 @@ class UniverseView : View("Game of Life") {
             }
         }
 
+        // Changing speed using slider
+        speedSlider.valueProperty()
+            .addListener(ChangeListener<Number> { _: ObservableValue<out Number>?, _: Number, newNumber: Number ->
+                newNumber as Double
+                if (ceil(newNumber) == floor(newNumber)) {
+                    DELAY_MS = (1000 / newNumber).toLong()
+                    if (task != null) {
+                        task?.cancel()
+                        task = timer.scheduleAtFixedRate(0, DELAY_MS) { gameTick() }
+                    }
+                }
+            })
+
         // Starting panning
         grid.setOnDragDetected { event ->
             if (event.button == MouseButton.MIDDLE) {
@@ -247,7 +266,7 @@ class UniverseView : View("Game of Life") {
 
     private fun gridSetup() {
         updateStats()
-        sizeIndicator.text = "$zoomSize ✕ $zoomSize"
+        sizeIndicator.text = "$zoomSize × $zoomSize"
         viewIndicator.text = "x: $zoomLeftX y: $zoomLeftY"
 
         for (i in 0 until zoomSize) {

@@ -16,7 +16,7 @@
         <RowConstraints/>
     </rowConstraints>
     <AnchorPane fx:id="titleBar" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #455A64;">
-        <HBox spacing="2.5" AnchorPane.LeftAnchor="0.0">
+        <HBox spacing="2.5" AnchorPane.LeftAnchor="0.0" AnchorPane.topAnchor="5.0">
             <JFXButton fx:id="playButton" defaultButton="true" minHeight="35.0" prefWidth="35.0"
                        style="-fx-background-color: #78909C;" text="▶" textAlignment="CENTER">
                 <font>
@@ -29,16 +29,27 @@
                     <Font name="System Bold" size="14.0"/>
                 </font>
             </JFXButton>
-            <JFXButton fx:id="resetButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #607D8B;"
+            <JFXButton fx:id="resetButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #607d8b;"
                        text="🔄" textAlignment="CENTER">
                 <font>
                     <Font name="System Bold" size="12.0"/>
                 </font>
             </JFXButton>
+            <VBox prefHeight="35.0">
+                <Text fill="#b0bec5" text="Speed">
+                    <font>
+                        <Font name="System Bold" size="12.0"/>
+                    </font>
+                </Text>
+                <JFXSlider fx:id="speedSlider" blockIncrement="1.0" indicatorPosition="RIGHT" majorTickUnit="1" max="10"
+                           min="1" minorTickCount="0" prefHeight="9.0" prefWidth="140.0" showTickMarks="true"
+                           snapToTicks="true" stylesheets="/slider.css" value="4.0">
+                </JFXSlider>
+            </VBox>
+
         </HBox>
-        <JFXButton fx:id="closeButton" AnchorPane.rightAnchor="0.0" minHeight="35.0" prefWidth="35.0"
-                   style="-fx-background-color: #E53935;"
-                   text="✖" textAlignment="CENTER">
+        <JFXButton fx:id="closeButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #E53935;" text="✖"
+                   textAlignment="CENTER" AnchorPane.topAnchor="5.0" AnchorPane.rightAnchor="0.0">
             <font>
                 <Font size="14.0"/>
             </font>
