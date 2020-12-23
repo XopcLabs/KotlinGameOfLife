@@ -1,10 +1,10 @@
 package gameoflife
 
-import javafx.application.Application
 import tornadofx.App
+import tornadofx.launch
 
 fun main() {
-    Application.launch(Main::class.java)
+    launch<Main>()
 }
 
 class Main : App(UniverseView::class)
