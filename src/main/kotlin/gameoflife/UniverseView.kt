@@ -68,33 +68,33 @@ class UniverseView : View("Game of Life") {
     val populationIndicator: Text by fxid()
 
     // Game universe
-    var universe = Universe(UNIVERSE_SIZE)
-    var delay = 200L
+    private var universe = Universe(UNIVERSE_SIZE)
+    private var delay = 200L
 
     // View parameters
-    var zoomSize = DEFAULT_SIZE
-    var zoomOnLeft = true
+    private var zoomSize = DEFAULT_SIZE
+    private var zoomOnLeft = true
 
     // Upper left corner coord
-    var zoomLeftX = UNIVERSE_SIZE / 2 - zoomSize / 2
-    var zoomLeftY = UNIVERSE_SIZE / 2 - zoomSize / 2
+    private var zoomLeftX = UNIVERSE_SIZE / 2 - zoomSize / 2
+    private var zoomLeftY = UNIVERSE_SIZE / 2 - zoomSize / 2
 
     // Bottom right corner coord
-    var zoomRightX = UNIVERSE_SIZE / 2 + zoomSize / 2
-    var zoomRightY = UNIVERSE_SIZE / 2 + zoomSize / 2
+    private var zoomRightX = UNIVERSE_SIZE / 2 + zoomSize / 2
+    private var zoomRightY = UNIVERSE_SIZE / 2 + zoomSize / 2
 
     // Cell size on current zoom
-    var cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
-    var cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
+    private var cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
+    private var cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
 
     // GridPane nodes array
-    val rectangles = Array(UNIVERSE_SIZE) { Array(UNIVERSE_SIZE) { Rectangle(0.0, 0.0) } }
+    private val rectangles = Array(UNIVERSE_SIZE) { Array(UNIVERSE_SIZE) { Rectangle(0.0, 0.0) } }
 
     // Board panning parameters
-    var panStartX = 0
-    var panStartY = 0
-    var panEndX = 0
-    var panEndY = 0
+    private var panStartX = 0
+    private var panStartY = 0
+    private var panEndX = 0
+    private var panEndY = 0
 
     // Timer for delays
     private val timer = Timer()
