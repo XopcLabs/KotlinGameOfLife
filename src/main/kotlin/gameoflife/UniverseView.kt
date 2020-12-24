@@ -26,7 +26,7 @@ class UniverseView : View("Game of Life") {
 
     companion object {
         @JvmStatic
-        val DEFAULT_SIZE = 20
+        val DEFAULT_SIZE = 40
 
         @JvmStatic
         val MIN_SIZE = 6
@@ -55,19 +55,17 @@ class UniverseView : View("Game of Life") {
     val titleBar: AnchorPane by fxid()
 
     // Interactive
-    val sizeIndicator: Text by fxid()
     val playButton: Button by fxid()
     val nextButton: Button by fxid()
     val resetButton: Button by fxid()
     val closeButton: Button by fxid()
     val speedSlider: Slider by fxid()
 
-    // Statistics
+    // Text indicatiors
+    val positionIndicator: Text by fxid()
+    val sizeIndicator: Text by fxid()
     val generationIndicator: Text by fxid()
     val populationIndicator: Text by fxid()
-
-    // View indicator
-    val viewIndicator: Text by fxid()
 
     // Game universe
     var universe = Universe(UNIVERSE_SIZE)
@@ -180,6 +178,13 @@ class UniverseView : View("Game of Life") {
                 }
             })
 
+        // Mouse pointer position coordinate tracker
+        grid.setOnMouseMoved { event ->
+            val cellX = zoomLeftX + (event.x / cellSize).toInt()
+            val cellY = zoomLeftY + (event.y / cellSize).toInt()
+            positionIndicator.text = "x: $cellX, y:$cellY"
+        }
+
         // Starting panning
         grid.setOnDragDetected { event ->
             if (event.button == MouseButton.MIDDLE) {
@@ -217,7 +222,6 @@ class UniverseView : View("Game of Life") {
                 gridReset()
                 gridSetup()
             }
-
         }
 
         // Changing zoom size
@@ -267,7 +271,6 @@ class UniverseView : View("Game of Life") {
         // Update text
         updateStats()
         sizeIndicator.text = "$zoomSize × $zoomSize"
-        viewIndicator.text = "x: $zoomLeftX y: $zoomLeftY"
 
         // Update constraints
         for (i in 0 until zoomSize) {
@@ -358,17 +361,9 @@ class UniverseView : View("Game of Life") {
         for (x in zoomLeftX until zoomRightX)
             for (y in zoomLeftY until zoomRightY) {
                 if (universe[x, y].isAlive) {
-                    try {
-                        rectangles[x][y].fill = onColor
-                    } catch (e: Exception) {
-                        println("At $x, $y")
-                    }
+                    rectangles[x][y].fill = onColor
                 } else {
-                    try {
-                        rectangles[x][y].fill = offColor
-                    } catch (e: Exception) {
-                        println("At $x, $y")
-                    }
+                    rectangles[x][y].fill = offColor
                 }
             }
     }
@@ -376,7 +371,7 @@ class UniverseView : View("Game of Life") {
     // Update statistics text after evolution step
     private fun updateStats() {
         generationIndicator.text = "Generation: ${universe.generation}"
-        populationIndicator.text = "Population: ${universe.population} cells"
+        populationIndicator.text = "Population: ${universe.population}"
     }
 
 }

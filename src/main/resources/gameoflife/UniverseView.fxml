@@ -49,7 +49,7 @@
 
         </HBox>
         <JFXButton fx:id="closeButton" minHeight="35.0" prefWidth="35.0" style="-fx-background-color: #E53935;" text="✖"
-                   textAlignment="CENTER" AnchorPane.topAnchor="5.0" AnchorPane.rightAnchor="0.0">
+                   textAlignment="CENTER" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0">
             <font>
                 <Font size="14.0"/>
             </font>
@@ -75,7 +75,7 @@
             </Text>
         </HBox>
         <HBox spacing="10.0" AnchorPane.bottomAnchor="9.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="9.0">
-            <Text fx:id="viewIndicator" fill="#b0bec5">
+            <Text fx:id="positionIndicator" fill="#b0bec5">
                 <font>
                     <Font name="System Bold" size="12.0"/>
                 </font>
