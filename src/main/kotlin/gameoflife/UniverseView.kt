@@ -101,8 +101,8 @@ class UniverseView : View("Game of Life") {
     private var task: TimerTask? = null
 
     // Theme
-    private val offColor = Color.valueOf("#37474F")
-    private val onColor = Color.valueOf("#608D8B")
+    private val offColor = Color.valueOf("#232323")
+    private val onColor = Color.valueOf("#cecece")
 
     // Window dragging
     private var xOffset = 0.0
