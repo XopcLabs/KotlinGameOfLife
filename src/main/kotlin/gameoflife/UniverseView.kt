@@ -140,7 +140,7 @@ class UniverseView : View("Game of Life") {
             } else {
                 playButton.text = "⏸"
 
-                task = timer.scheduleAtFixedRate(0L, delay) { gameTick() }
+                task = timer.autoplay()
 
                 nextButton.disableProperty().set(true)
                 resetButton.disableProperty().set(true)
@@ -173,7 +173,7 @@ class UniverseView : View("Game of Life") {
                     delay = (1000 / newNumber).toLong()
                     if (task != null) {
                         task?.cancel()
-                        task = timer.scheduleAtFixedRate(0, delay) { gameTick() }
+                        task = timer.autoplay()
                     }
                 }
             })
@@ -325,7 +325,6 @@ class UniverseView : View("Game of Life") {
                             else offColor
                         }
                     }
-
                 }
                 grid.add(cellRect, x - zoomLeftX, y - zoomLeftY)
             }
@@ -374,4 +373,7 @@ class UniverseView : View("Game of Life") {
         populationIndicator.text = "Population: ${universe.population}"
     }
 
+    private fun Timer.autoplay (): TimerTask {
+        return scheduleAtFixedRate(0L, delay) { gameTick() }
+    }
 }
