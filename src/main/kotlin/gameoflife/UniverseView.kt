@@ -35,7 +35,7 @@ class UniverseView : View("Game of Life") {
         val MAX_SIZE = 65
 
         @JvmStatic
-        val UNIVERSE_SIZE = 1000
+        val UNIVERSE_SIZE = 500
 
         @JvmStatic
         val GRID_DIMENSION = 600.0
@@ -109,6 +109,20 @@ class UniverseView : View("Game of Life") {
     private var yOffset = 0.0
 
     init {
+        // Shortcuts
+        shortcut("Space") {
+            playButtonLogic()
+        }
+        shortcut("Ctrl+Space") {
+            if (task == null)
+                gameTick()
+        }
+        shortcut("R") {
+            universe.clear()
+            gridUpdate()
+            updateStats()
+        }
+
         // Styling game window
         primaryStage.resizableProperty().set(false)
         primaryStage.initStyle(StageStyle.TRANSPARENT)
@@ -125,27 +139,10 @@ class UniverseView : View("Game of Life") {
             primaryStage.y = event.screenY - yOffset
         }
 
-        gridSetup()
 
         // Interactive elements logic
         playButton.setOnMouseClicked {
-            if (task != null) {
-                playButton.text = "▶"
-                task?.cancel()
-                task = null
-
-                nextButton.disableProperty().set(false)
-                resetButton.disableProperty().set(false)
-                sizeIndicator.disableProperty().set(false)
-            } else {
-                playButton.text = "⏸"
-
-                task = timer.autoplay()
-
-                nextButton.disableProperty().set(true)
-                resetButton.disableProperty().set(true)
-                sizeIndicator.disableProperty().set(true)
-            }
+            playButtonLogic()
         }
 
         nextButton.setOnMouseClicked {
@@ -258,6 +255,28 @@ class UniverseView : View("Game of Life") {
             // Updating grid
             gridReset()
             gridSetup()
+        }
+
+        gridSetup()
+    }
+
+    private fun playButtonLogic() {
+        if (task != null) {
+            playButton.text = "▶"
+            task?.cancel()
+            task = null
+
+            nextButton.disableProperty().set(false)
+            resetButton.disableProperty().set(false)
+            sizeIndicator.disableProperty().set(false)
+        } else {
+            playButton.text = "⏸"
+
+            task = timer.autoplay()
+
+            nextButton.disableProperty().set(true)
+            resetButton.disableProperty().set(true)
+            sizeIndicator.disableProperty().set(true)
         }
     }
 
@@ -373,7 +392,7 @@ class UniverseView : View("Game of Life") {
         populationIndicator.text = "Population: ${universe.population}"
     }
 
-    private fun Timer.autoplay (): TimerTask {
+    private fun Timer.autoplay(): TimerTask {
         return scheduleAtFixedRate(0L, delay) { gameTick() }
     }
 }
