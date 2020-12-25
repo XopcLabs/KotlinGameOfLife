@@ -11,6 +11,8 @@ class Universe(var size: Int) {
     val isAlive
         get() = universe.map { row -> row.any { cell -> cell.isAlive } }.any { it }
 
+    var isStable = false
+
     init {
         universe.forEachIndexed { y, row -> row.forEachIndexed { x, cell -> cell.setupNeighbors(x, y) } }
     }
@@ -20,6 +22,9 @@ class Universe(var size: Int) {
         val aliveNeighborsCounts =
             universe.map { it.map { cell -> cell.neighbors.count { neighbor -> neighbor.isAlive } } }
         universe.forEachIndexed { y, row -> row.forEachIndexed { x, cell -> cell.evolve(aliveNeighborsCounts[y][x]) } }
+        val newAliveNeighborsCounts =
+            universe.map { it.map { cell -> cell.neighbors.count { neighbor -> neighbor.isAlive } } }
+        isStable = aliveNeighborsCounts == newAliveNeighborsCounts
         generation++
     }
 
@@ -27,6 +32,7 @@ class Universe(var size: Int) {
     fun clear() {
         universe.map { it.map { cell -> cell.isAlive = false } }
         generation = 0
+        isStable = false
     }
 
     // Get operator for accessing individual cell
@@ -60,7 +66,7 @@ class Universe(var size: Int) {
         return neighbors
     }
 
-   // Extends Cell with method that adds neighbors
+    // Extends Cell with method that adds neighbors
     private fun Cell.setupNeighbors(x: Int, y: Int) {
         neighbors.addAll(getNeighborsAt(x, y))
     }

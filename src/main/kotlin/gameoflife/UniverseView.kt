@@ -1,5 +1,6 @@
 package gameoflife
 
+import javafx.application.Platform
 import javafx.beans.value.ObservableValue
 import javafx.geometry.HPos
 import javafx.geometry.VPos
@@ -284,6 +285,11 @@ class UniverseView : View("Game of Life") {
         universe.evolve()
         gridUpdate()
         updateStats()
+        if (task != null && universe.isStable) {
+            task?.cancel()
+            task = null
+            Platform.runLater { playButton.text = "▶" }
+        }
     }
 
     private fun gridSetup() {
