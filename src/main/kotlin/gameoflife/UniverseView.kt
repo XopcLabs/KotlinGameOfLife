@@ -14,6 +14,7 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.RowConstraints
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import javafx.scene.text.Font
 import javafx.scene.text.Text
 import javafx.stage.StageStyle
 import tornadofx.*
@@ -123,6 +124,15 @@ class UniverseView : View("Game of Life") {
             gridUpdate()
             updateStats()
         }
+
+        // Tooltips
+        playButton.tooltip("Toggle auto-play (Space).")
+        nextButton.tooltip("Next generation (Ctrl + Space).")
+        resetButton.tooltip("Reset the board (R).").apply { font = Font.font(12.0) }
+        speedSlider.tooltip("Adjust auto-play speed (1 gen/s to 10 gen/s)").apply { font = Font.font(12.0) }
+        positionIndicator.tooltip("Position of the cursor on the board (Middle mouse button for panning).")
+            .apply { font = Font.font(12.0) }
+        sizeIndicator.tooltip("View level (Mouse scroll wheel for zoom).").apply { font = Font.font(12.0) }
 
         // Styling game window
         primaryStage.resizableProperty().set(false)
