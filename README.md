@@ -3,8 +3,8 @@
 Another implementation of Conway's Game of life written in Kotlin using tornadofx.
 
 <p float="middle">
-<img src="images/basic.gif" width="450" height="503"/>
-<img src="images/dragging.gif" width="450" height="503"/>
+<img src="images/basic.gif" width="300" height="335"/>
+<img src="images/dragging.gif" width="300" height="335"/>
 </p>
 
 ## Features
