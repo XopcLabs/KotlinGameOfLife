@@ -37,7 +37,16 @@ class UniverseView : View("Game of Life") {
         val MAX_SIZE = 65
 
         @JvmStatic
-        val UNIVERSE_SIZE = 500
+        val UNIVERSE_DEFAULT_SIZE = 500
+
+        @JvmStatic
+        val UNIVERSE_MIN_SIZE = 20
+
+        @JvmStatic
+        val UNIVERSE_SIZE_INC = 10
+
+        @JvmStatic
+        val UNIVERSE_MAX_SIZE = 1000
 
         @JvmStatic
         val GRID_DIMENSION = 600.0
@@ -68,9 +77,11 @@ class UniverseView : View("Game of Life") {
     val sizeIndicator: Text by fxid()
     val generationIndicator: Text by fxid()
     val populationIndicator: Text by fxid()
+    val universeSizeIndicator: Text by fxid()
 
     // Game universe
-    private var universe = Universe(UNIVERSE_SIZE)
+    private var universeSize = UNIVERSE_DEFAULT_SIZE
+    private var universe = Universe(universeSize)
     private var delay = 200L
 
     // View parameters
@@ -78,19 +89,19 @@ class UniverseView : View("Game of Life") {
     private var zoomOnLeft = true
 
     // Upper left corner coord
-    private var zoomLeftX = UNIVERSE_SIZE / 2 - zoomSize / 2
-    private var zoomLeftY = UNIVERSE_SIZE / 2 - zoomSize / 2
+    private var zoomLeftX = universeSize / 2 - zoomSize / 2
+    private var zoomLeftY = universeSize / 2 - zoomSize / 2
 
     // Bottom right corner coord
-    private var zoomRightX = UNIVERSE_SIZE / 2 + zoomSize / 2
-    private var zoomRightY = UNIVERSE_SIZE / 2 + zoomSize / 2
+    private var zoomRightX = universeSize / 2 + zoomSize / 2
+    private var zoomRightY = universeSize / 2 + zoomSize / 2
 
     // Cell size on current zoom
     private var cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
     private var cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
 
     // GridPane nodes array
-    private val rectangles = Array(UNIVERSE_SIZE) { Array(UNIVERSE_SIZE) { Rectangle(0.0, 0.0) } }
+    private var rectangles = Array(universeSize) { Array<Rectangle?>(universeSize) { null } }
 
     // Board panning parameters
     private var panStartX = 0
@@ -130,6 +141,7 @@ class UniverseView : View("Game of Life") {
         nextButton.tooltip("Next generation (Ctrl + Space).")
         resetButton.tooltip("Reset the board (R).").apply { font = Font.font(12.0) }
         speedSlider.tooltip("Adjust auto-play speed (1 gen/s to 10 gen/s)").apply { font = Font.font(12.0) }
+        universeSizeIndicator.tooltip("Board size (Ctrl + Mouse scroll wheel to adjust).")
         positionIndicator.tooltip("Position of the cursor on the board (Middle mouse button for panning).")
             .apply { font = Font.font(12.0) }
         sizeIndicator.tooltip("View level (Mouse scroll wheel for zoom).").apply { font = Font.font(12.0) }
@@ -234,40 +246,56 @@ class UniverseView : View("Game of Life") {
 
         // Changing zoom size
         grid.setOnScroll { event ->
-            if (event.deltaY < 0 && zoomSize < MAX_SIZE) {
-                zoomSize++
-
-                //Update game view
-                if (zoomOnLeft) {
-                    zoomLeftX--
-                    zoomLeftY--
-                } else {
-                    zoomRightX++
-                    zoomRightY++
-                }
-            } else if (event.deltaY > 0 && zoomSize > MIN_SIZE) {
-                zoomSize--
-
-                //Update game view
-                if (zoomOnLeft) {
-                    zoomLeftX++
-                    zoomLeftY++
-                } else {
-                    zoomRightX--
-                    zoomRightY--
+            // Handling universe size changes
+            if (event.isControlDown) {
+                if (task != null)
+                    return@setOnScroll
+                if (event.deltaY < 0 && universeSize > UNIVERSE_MIN_SIZE) {
+                    universeSize -= UNIVERSE_SIZE_INC
+                    universeSizeIndicator.text = "Size: $universeSize × $universeSize"
+                    setupUniverse()
+                } else if (event.deltaY > 0 && universeSize < UNIVERSE_MAX_SIZE) {
+                    universeSize += UNIVERSE_SIZE_INC
+                    universeSizeIndicator.text = "Size: $universeSize × $universeSize"
+                    setupUniverse()
                 }
             }
-            // Switching side for next zoom
-            zoomOnLeft = !zoomOnLeft
+            // Handling view size change
+            else {
+                if (event.deltaY < 0 && zoomSize < minOf(MAX_SIZE, universeSize)) {
+                    zoomSize++
 
+                    //Update game view
+                    if (zoomOnLeft) {
+                        zoomLeftX--
+                        zoomLeftY--
+                    } else {
+                        zoomRightX++
+                        zoomRightY++
+                    }
+                } else if (event.deltaY > 0 && zoomSize > MIN_SIZE) {
+                    zoomSize--
+
+                    //Update game view
+                    if (zoomOnLeft) {
+                        zoomLeftX++
+                        zoomLeftY++
+                    } else {
+                        zoomRightX--
+                        zoomRightY--
+                    }
+                }
+                // Switching side for next zoom
+                zoomOnLeft = !zoomOnLeft
+            }
             // Adjusting to corners
             adjustCorners()
-
             // Updating grid
             gridReset()
             gridSetup()
         }
 
+        // Initial setup
         gridSetup()
     }
 
@@ -306,6 +334,7 @@ class UniverseView : View("Game of Life") {
         // Update text
         updateStats()
         sizeIndicator.text = "$zoomSize × $zoomSize"
+        universeSizeIndicator.text = "Size: $universeSize × $universeSize"
 
         // Update constraints
         for (i in 0 until zoomSize) {
@@ -324,8 +353,8 @@ class UniverseView : View("Game of Life") {
         cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
         cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
 
-        for (x in zoomLeftX until zoomRightX)
-            for (y in zoomLeftY until zoomRightY) {
+        for (x in zoomLeftX until minOf(zoomRightX, universeSize))
+            for (y in zoomLeftY until minOf(zoomRightY, universeSize)) {
                 // Create rectangle
                 val cellRect = Rectangle(cellSize, cellSize, offColor).apply { arcHeight = 5.0; arcWidth = 5.0 }
                 rectangles[x][y] = cellRect
@@ -365,21 +394,34 @@ class UniverseView : View("Game of Life") {
             }
     }
 
+    // Re-create universe after size change and setup everything
+    private fun setupUniverse() {
+        universe = Universe(universeSize)
+        rectangles = Array(universeSize) { Array<Rectangle?>(universeSize) { null } }
+        zoomSize = minOf(zoomSize, universeSize)
+        zoomLeftX = universeSize / 2 - zoomSize / 2
+        zoomLeftY = universeSize / 2 - zoomSize / 2
+        zoomRightX = zoomLeftX + zoomSize
+        zoomRightY = zoomLeftY + zoomSize
+        cellMargin = CELL_MIN_MARGIN + zoomSize * (CELL_MAX_MARGIN - CELL_MIN_MARGIN) / (MAX_SIZE - MIN_SIZE)
+        cellSize = (GRID_DIMENSION - GRID_PAD) / zoomSize - cellMargin
+    }
+
     // Adjusts corners to the grid constraints after zoom or pan
     private fun adjustCorners() {
         if (zoomLeftX < 0) {
             zoomRightX -= zoomLeftX
             zoomLeftX = 0
-        } else if (zoomRightX > UNIVERSE_SIZE) {
-            zoomLeftX -= zoomRightX - UNIVERSE_SIZE
-            zoomRightX = UNIVERSE_SIZE
+        } else if (zoomRightX > universeSize) {
+            zoomLeftX -= zoomRightX - universeSize
+            zoomRightX = universeSize
         }
         if (zoomLeftY < 0) {
             zoomRightY -= zoomLeftY
             zoomLeftY = 0
-        } else if (zoomRightY > UNIVERSE_SIZE) {
-            zoomLeftY -= zoomRightY - UNIVERSE_SIZE
-            zoomRightY = UNIVERSE_SIZE
+        } else if (zoomRightY > universeSize) {
+            zoomLeftY -= zoomRightY - universeSize
+            zoomRightY = universeSize
         }
     }
 
@@ -395,9 +437,9 @@ class UniverseView : View("Game of Life") {
         for (x in zoomLeftX until zoomRightX)
             for (y in zoomLeftY until zoomRightY) {
                 if (universe[x, y].isAlive) {
-                    rectangles[x][y].fill = onColor
+                    rectangles[x][y]?.fill = onColor
                 } else {
-                    rectangles[x][y].fill = offColor
+                    rectangles[x][y]?.fill = offColor
                 }
             }
     }
